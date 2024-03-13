@@ -18,7 +18,6 @@ import com.bhm.support.sdk.core.AppTheme
 import com.bhm.support.sdk.utils.ViewUtil
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import leakcanary.LeakCanary
 
 /**
  * 主页面
@@ -36,7 +35,7 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
     override fun initData() {
         super.initData()
         AppTheme.setStatusBarColor(this, R.color.purple_500)
-        LeakCanary.runCatching {  }
+//        LeakCanary.runCatching { }
         initList()
         viewModel.initBle()
     }
@@ -48,7 +47,7 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
             //添加扫描到的设备 刷新列表
             viewModel.listDRStateFlow.collect {
                 if (it.deviceName != null && it.deviceAddress != null) {
-                    val position = (listAdapter?.itemCount?: 1) - 1
+                    val position = (listAdapter?.itemCount ?: 1) - 1
                     listAdapter?.notifyItemInserted(position)
                     viewBinding.recyclerView.smoothScrollToPosition(position)
                 }
@@ -57,8 +56,16 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
 
         lifecycleScope.launch {
             viewModel.scanStopStateFlow.collect {
-                viewBinding.pbLoading.visibility = if (it) { View.INVISIBLE } else { View.VISIBLE }
-                viewBinding.btnStart.text = if (it) { "开启扫描" } else { "扫描中..." }
+                viewBinding.pbLoading.visibility = if (it) {
+                    View.INVISIBLE
+                } else {
+                    View.VISIBLE
+                }
+                viewBinding.btnStart.text = if (it) {
+                    "开启扫描"
+                } else {
+                    "扫描中..."
+                }
                 viewBinding.btnStart.isEnabled = it
                 viewBinding.btnConnect.isEnabled = it
                 viewBinding.btnSetting.isEnabled = it
@@ -80,7 +87,7 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
                     if (position >= 0) {
                         listAdapter?.notifyItemChanged(position)
                     }
-                    val isConnected= viewModel.isConnected(bleDevice)
+                    val isConnected = viewModel.isConnected(bleDevice)
                     if (it.bleDevice.deviceAddress == "7C:DF:A1:A3:5A:BE") {
                         viewBinding.btnConnect.isEnabled = !isConnected
                     }
@@ -118,7 +125,7 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
             autoOpenDetailsActivity = true
             showLoading("连接中...")
 //            viewModel.startScanAndConnect(this@MainActivity)
-            viewModel.connect("7C:DF:A1:A3:5A:BE")
+            viewModel.connect("94:C9:60:44:5D:08")
         }
 
         viewBinding.btnSetting.setOnClickListener {
@@ -143,6 +150,12 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
             }
             viewModel.stopScan()
         }
+
+        autoClick()
+    }
+
+    private fun autoClick() {
+        viewBinding.btnConnect.performClick()
     }
 
     private fun initList() {
@@ -150,9 +163,14 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
         layoutManager.orientation = LinearLayoutManager.VERTICAL
         viewBinding.recyclerView.setHasFixedSize(true)
         viewBinding.recyclerView.layoutManager = layoutManager
-        viewBinding.recyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+        viewBinding.recyclerView.addItemDecoration(
+            DividerItemDecoration(
+                this, DividerItemDecoration.VERTICAL
+            )
+        )
         //解决RecyclerView局部刷新时闪烁
-        (viewBinding.recyclerView.itemAnimator as DefaultItemAnimator).supportsChangeAnimations = false
+        (viewBinding.recyclerView.itemAnimator as DefaultItemAnimator).supportsChangeAnimations =
+            false
         listAdapter = DeviceListAdapter(viewModel.listDRData)
         viewBinding.recyclerView.adapter = listAdapter
     }

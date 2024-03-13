@@ -54,10 +54,20 @@ class DetailOperateActivity : BaseActivity<DetailViewModel, ActivityDetailBindin
 
     private var connectionPriority = BluetoothGatt.CONNECTION_PRIORITY_BALANCED
 
-    private var operateCallback: ((checkBox: CheckBox?,
-                                   operateType: OperateType,
-                                   isChecked: Boolean,
-                                   node: CharacteristicNode) -> Unit)? = null
+    private val characteristicNode = CharacteristicNode(
+        "1",
+        "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+        "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+        "4",
+        5,
+        false,
+        false,
+        false
+    )
+
+    private var operateCallback: ((
+        checkBox: CheckBox?, operateType: OperateType, isChecked: Boolean, node: CharacteristicNode
+    ) -> Unit)? = null
 
     override fun initData() {
         super.initData()
@@ -65,8 +75,7 @@ class DetailOperateActivity : BaseActivity<DetailViewModel, ActivityDetailBindin
         bleDevice = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra("data", BleDevice::class.java)
         } else {
-            @Suppress("DEPRECATION")
-            intent.getParcelableExtra("data")
+            @Suppress("DEPRECATION") intent.getParcelableExtra("data")
         }
         disConnectWhileClose = intent.getBooleanExtra("disConnectWhileClose", false)
 
@@ -81,6 +90,7 @@ class DetailOperateActivity : BaseActivity<DetailViewModel, ActivityDetailBindin
             append("地址：${getBleDevice().deviceAddress}")
         }
         initList()
+        openKey()
     }
 
     private fun getBleDevice(): BleDevice {
@@ -91,14 +101,20 @@ class DetailOperateActivity : BaseActivity<DetailViewModel, ActivityDetailBindin
         val layoutManager = LinearLayoutManager(applicationContext)
         layoutManager.orientation = LinearLayoutManager.VERTICAL
         viewBinding.recyclerView.layoutManager = layoutManager
-        viewBinding.recyclerView.addItemDecoration(DividerItemDecoration(applicationContext, DividerItemDecoration.VERTICAL))
+        viewBinding.recyclerView.addItemDecoration(
+            DividerItemDecoration(
+                applicationContext, DividerItemDecoration.VERTICAL
+            )
+        )
         operateCallback = { checkBox, operateType, isChecked, node ->
             when (operateType) {
                 is OperateType.Write -> {
                     if (isChecked) {
                         if (viewBinding.btnSend.isEnabled) {
                             checkBox?.isChecked = false
-                            Toast.makeText(applicationContext, "请取消其他特征值写操作", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                applicationContext, "请取消其他特征值写操作", Toast.LENGTH_SHORT
+                            ).show()
                         } else {
                             viewBinding.btnSend.isEnabled = true
                             viewBinding.etContent.isEnabled = true
@@ -110,9 +126,11 @@ class DetailOperateActivity : BaseActivity<DetailViewModel, ActivityDetailBindin
                         currentSendNode = null
                     }
                 }
+
                 is OperateType.Read -> {
                     viewModel.readData(getBleDevice(), node)
                 }
+
                 is OperateType.Notify -> {
                     if (isChecked) {
                         viewModel.notify(getBleDevice(), node)
@@ -120,6 +138,7 @@ class DetailOperateActivity : BaseActivity<DetailViewModel, ActivityDetailBindin
                         viewModel.stopNotify(getBleDevice(), node)
                     }
                 }
+
                 is OperateType.Indicate -> {
                     if (isChecked) {
                         viewModel.indicate(getBleDevice(), node)
@@ -131,7 +150,7 @@ class DetailOperateActivity : BaseActivity<DetailViewModel, ActivityDetailBindin
         }
         expandAdapter = DetailsExpandAdapter(viewModel.getListData(getBleDevice()), operateCallback)
         viewBinding.recyclerView.adapter = expandAdapter
-        if ((expandAdapter?.data?.size?: 0) > 0) {
+        if ((expandAdapter?.data?.size ?: 0) > 0) {
             expandAdapter?.expand(0)
         }
 
@@ -139,10 +158,22 @@ class DetailOperateActivity : BaseActivity<DetailViewModel, ActivityDetailBindin
         logLayoutManager.orientation = LinearLayoutManager.VERTICAL
         viewBinding.logRecyclerView.setHasFixedSize(true)
         viewBinding.logRecyclerView.layoutManager = logLayoutManager
-        (viewBinding.recyclerView.itemAnimator as DefaultItemAnimator).supportsChangeAnimations = false
+        (viewBinding.recyclerView.itemAnimator as DefaultItemAnimator).supportsChangeAnimations =
+            false
         loggerListAdapter = LoggerListAdapter(viewModel.listLogData)
         viewBinding.logRecyclerView.adapter = loggerListAdapter
+    }
 
+    private fun openKey() {
+        viewModel.writeData(
+            getBleDevice(), characteristicNode, "{\"cmd\":\"open\"}"
+        )
+    }
+
+    fun closeKey() {
+        viewModel.writeData(
+            getBleDevice(), characteristicNode, "{\"cmd\":\"close\"}"
+        )
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -171,8 +202,10 @@ class DetailOperateActivity : BaseActivity<DetailViewModel, ActivityDetailBindin
             when (connectionPriority) {
                 BluetoothGatt.CONNECTION_PRIORITY_BALANCED -> connectionPriority =
                     BluetoothGatt.CONNECTION_PRIORITY_HIGH
+
                 BluetoothGatt.CONNECTION_PRIORITY_HIGH -> connectionPriority =
                     BluetoothGatt.CONNECTION_PRIORITY_LOW_POWER
+
                 BluetoothGatt.CONNECTION_PRIORITY_LOW_POWER -> connectionPriority =
                     BluetoothGatt.CONNECTION_PRIORITY_BALANCED
             }
@@ -185,6 +218,7 @@ class DetailOperateActivity : BaseActivity<DetailViewModel, ActivityDetailBindin
             }
             loggerListAdapter?.notifyItemRangeRemoved(0, viewModel.listLogData.size)
             viewModel.listLogData.clear()
+            closeKey()
         }
 
         viewBinding.btnSetMtu.setOnClickListener {
@@ -216,9 +250,7 @@ class DetailOperateActivity : BaseActivity<DetailViewModel, ActivityDetailBindin
             }
             currentSendNode?.let { node ->
                 viewModel.writeData(
-                    getBleDevice(),
-                    node,
-                    content
+                    getBleDevice(), node, content
                 )
             }
         }
