@@ -58,8 +58,9 @@ class BleManager private constructor() {
             bleOptions = BleOptions.getDefaultBleOptions()
         }
         bleBaseRequest = BleRequestImp.get()
-        bluetoothManager = application?.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?
-        BleLogger.isLogger = bleOptions?.enableLog?: false
+        bluetoothManager =
+            application?.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?
+        BleLogger.isLogger = bleOptions?.enableLog ?: false
         BleLogger.d("ble Successful initialization")
     }
 
@@ -77,7 +78,7 @@ class BleManager private constructor() {
      */
     fun isBleEnable(): Boolean {
         val bluetoothAdapter = bluetoothManager?.adapter
-        return isBleSupport() && (bluetoothAdapter?.isEnabled?: false)
+        return isBleSupport() && (bluetoothAdapter?.isEnabled ?: false)
     }
 
     /**
@@ -117,7 +118,7 @@ class BleManager private constructor() {
      */
     fun isScanning(): Boolean {
         checkInitialize()
-        return bleBaseRequest?.isScanning()?: false
+        return bleBaseRequest?.isScanning() ?: false
     }
 
     /**
@@ -151,7 +152,8 @@ class BleManager private constructor() {
             return false
         }
         bleDevice?.let {
-            val connectedDevices: List<BluetoothDevice>? = bluetoothManager?.getConnectedDevices(BluetoothProfile.GATT)
+            val connectedDevices: List<BluetoothDevice>? =
+                bluetoothManager?.getConnectedDevices(BluetoothProfile.GATT)
             if (connectedDevices.isNullOrEmpty()) {
                 return false
             }
@@ -176,12 +178,13 @@ class BleManager private constructor() {
      * @param isForceConnect 是否强制连接(针对已连接情况，是否重连)
      */
     @Synchronized
-    fun connect(bleDevice: BleDevice,
-                connectMillisTimeOut: Long?,
-                connectRetryCount: Int?,
-                connectRetryInterval: Long?,
-                isForceConnect: Boolean = false,
-                bleConnectCallback: BleConnectCallback.() -> Unit
+    fun connect(
+        bleDevice: BleDevice,
+        connectMillisTimeOut: Long?,
+        connectRetryCount: Int?,
+        connectRetryInterval: Long?,
+        isForceConnect: Boolean = false,
+        bleConnectCallback: BleConnectCallback.() -> Unit
     ) {
         checkInitialize()
         stopScan()
@@ -201,12 +204,13 @@ class BleManager private constructor() {
      * @param connectRetryCount 设置连接重试次数，只对单次连接有效
      * @param connectRetryInterval 设置连接重试间隔，单位毫秒，只对单次连接有效
      */
-    fun connect(address: String,
-                connectMillisTimeOut: Long?,
-                connectRetryCount: Int?,
-                connectRetryInterval: Long?,
-                isForceConnect: Boolean = false,
-                bleConnectCallback: BleConnectCallback.() -> Unit
+    fun connect(
+        address: String,
+        connectMillisTimeOut: Long?,
+        connectRetryCount: Int?,
+        connectRetryInterval: Long?,
+        isForceConnect: Boolean = false,
+        bleConnectCallback: BleConnectCallback.() -> Unit
     ) {
         connect(
             buildBleDeviceByDeviceAddress(address),
@@ -255,15 +259,17 @@ class BleManager private constructor() {
     }
 
     @Synchronized
-    fun startScanAndConnect(scanMillisTimeOut: Long?,
-                            scanRetryCount: Int?,
-                            scanRetryInterval: Long?,
-                            connectMillisTimeOut: Long?,
-                            connectRetryCount: Int?,
-                            connectRetryInterval: Long?,
-                            isForceConnect: Boolean = false,
-                            bleScanCallback: BleScanCallback.() -> Unit,
-                            bleConnectCallback: BleConnectCallback.() -> Unit) {
+    fun startScanAndConnect(
+        scanMillisTimeOut: Long?,
+        scanRetryCount: Int?,
+        scanRetryInterval: Long?,
+        connectMillisTimeOut: Long?,
+        connectRetryCount: Int?,
+        connectRetryInterval: Long?,
+        isForceConnect: Boolean = false,
+        bleScanCallback: BleScanCallback.() -> Unit,
+        bleConnectCallback: BleConnectCallback.() -> Unit
+    ) {
         checkInitialize()
         bleBaseRequest?.startScanAndConnect(
             scanMillisTimeOut,
@@ -335,16 +341,19 @@ class BleManager private constructor() {
     /**
      * notify
      */
-    @Deprecated(message = "请使用BleDescriptorGetType参数方式",
+    @Deprecated(
+        message = "请使用BleDescriptorGetType参数方式",
         replaceWith = ReplaceWith(
             "notify(BleDevice, String, String, BleDescriptorGetType, BleNotifyCallback)"
         )
     )
-    fun notify(bleDevice: BleDevice,
-               serviceUUID: String,
-               notifyUUID: String,
-               useCharacteristicDescriptor: Boolean = false,
-               bleNotifyCallback: BleNotifyCallback.() -> Unit) {
+    fun notify(
+        bleDevice: BleDevice,
+        serviceUUID: String,
+        notifyUUID: String,
+        useCharacteristicDescriptor: Boolean = false,
+        bleNotifyCallback: BleNotifyCallback.() -> Unit
+    ) {
         notify(
             bleDevice = bleDevice,
             serviceUUID = serviceUUID,
@@ -362,11 +371,13 @@ class BleManager private constructor() {
      * notify
      */
     @Synchronized
-    fun notify(bleDevice: BleDevice,
-               serviceUUID: String,
-               notifyUUID: String,
-               bleDescriptorGetType: BleDescriptorGetType = BleDescriptorGetType.Default,
-               bleNotifyCallback: BleNotifyCallback.() -> Unit) {
+    fun notify(
+        bleDevice: BleDevice,
+        serviceUUID: String,
+        notifyUUID: String,
+        bleDescriptorGetType: BleDescriptorGetType = BleDescriptorGetType.Default,
+        bleNotifyCallback: BleNotifyCallback.() -> Unit
+    ) {
         checkInitialize()
         bleBaseRequest?.notify(
             bleDevice,
@@ -380,7 +391,8 @@ class BleManager private constructor() {
     /**
      * stop notify
      */
-    @Deprecated(message = "请使用BleDescriptorGetType参数方式",
+    @Deprecated(
+        message = "请使用BleDescriptorGetType参数方式",
         replaceWith = ReplaceWith(
             "stopNotify(BleDevice, String, String, BleDescriptorGetType)"
         )
@@ -425,16 +437,19 @@ class BleManager private constructor() {
     /**
      * indicate
      */
-    @Deprecated(message = "请使用BleDescriptorGetType参数方式",
+    @Deprecated(
+        message = "请使用BleDescriptorGetType参数方式",
         replaceWith = ReplaceWith(
             "indicate(BleDevice, String, String, BleDescriptorGetType, BleIndicateCallback)"
         )
     )
-    fun indicate(bleDevice: BleDevice,
-                 serviceUUID: String,
-                 indicateUUID: String,
-                 useCharacteristicDescriptor: Boolean = false,
-                 bleIndicateCallback: BleIndicateCallback.() -> Unit) {
+    fun indicate(
+        bleDevice: BleDevice,
+        serviceUUID: String,
+        indicateUUID: String,
+        useCharacteristicDescriptor: Boolean = false,
+        bleIndicateCallback: BleIndicateCallback.() -> Unit
+    ) {
         indicate(
             bleDevice = bleDevice,
             serviceUUID = serviceUUID,
@@ -452,11 +467,13 @@ class BleManager private constructor() {
      * indicate
      */
     @Synchronized
-    fun indicate(bleDevice: BleDevice,
-                 serviceUUID: String,
-                 indicateUUID: String,
-                 bleDescriptorGetType: BleDescriptorGetType = BleDescriptorGetType.Default,
-                 bleIndicateCallback: BleIndicateCallback.() -> Unit) {
+    fun indicate(
+        bleDevice: BleDevice,
+        serviceUUID: String,
+        indicateUUID: String,
+        bleDescriptorGetType: BleDescriptorGetType = BleDescriptorGetType.Default,
+        bleIndicateCallback: BleIndicateCallback.() -> Unit
+    ) {
         checkInitialize()
         bleBaseRequest?.indicate(
             bleDevice,
@@ -470,7 +487,8 @@ class BleManager private constructor() {
     /**
      * stop indicate
      */
-    @Deprecated(message = "请使用BleDescriptorGetType参数方式",
+    @Deprecated(
+        message = "请使用BleDescriptorGetType参数方式",
         replaceWith = ReplaceWith(
             "stopIndicate(BleDevice, String, String, BleDescriptorGetType)"
         )
@@ -525,14 +543,18 @@ class BleManager private constructor() {
      * 设置mtu
      */
     fun setMtu(bleDevice: BleDevice, bleMtuChangedCallback: BleMtuChangedCallback.() -> Unit) {
-        setMtu(bleDevice, getOptions()?.mtu?: DEFAULT_MTU, bleMtuChangedCallback)
+        setMtu(bleDevice, getOptions()?.mtu ?: DEFAULT_MTU, bleMtuChangedCallback)
     }
 
     /**
      * 设置mtu
      */
     @Synchronized
-    fun setMtu(bleDevice: BleDevice, mtu: Int, bleMtuChangedCallback: BleMtuChangedCallback.() -> Unit) {
+    fun setMtu(
+        bleDevice: BleDevice,
+        mtu: Int,
+        bleMtuChangedCallback: BleMtuChangedCallback.() -> Unit
+    ) {
         checkInitialize()
         if (mtu > 512) {
             BleLogger.w("requiredMtu should lower than 512 !")
@@ -558,20 +580,23 @@ class BleManager private constructor() {
         checkInitialize()
         if (connectionPriority != BluetoothGatt.CONNECTION_PRIORITY_BALANCED &&
             connectionPriority != BluetoothGatt.CONNECTION_PRIORITY_HIGH &&
-            connectionPriority != BluetoothGatt.CONNECTION_PRIORITY_LOW_POWER) {
+            connectionPriority != BluetoothGatt.CONNECTION_PRIORITY_LOW_POWER
+        ) {
             return false
         }
-        return bleBaseRequest?.setConnectionPriority(bleDevice, connectionPriority)?: false
+        return bleBaseRequest?.setConnectionPriority(bleDevice, connectionPriority) ?: false
     }
 
     /**
      * 读特征值数据
      */
     @Synchronized
-    fun readData(bleDevice: BleDevice,
-                 serviceUUID: String,
-                 readUUID: String,
-                 bleReadCallback: BleReadCallback.() -> Unit) {
+    fun readData(
+        bleDevice: BleDevice,
+        serviceUUID: String,
+        readUUID: String,
+        bleReadCallback: BleReadCallback.() -> Unit
+    ) {
         checkInitialize()
         bleBaseRequest?.readData(bleDevice, serviceUUID, readUUID, bleReadCallback)
     }
@@ -580,11 +605,13 @@ class BleManager private constructor() {
      * 写数据
      * 注意：因为分包后每一个包，可能是包含完整的协议，所以分包由业务层处理，组件只会根据包的长度和mtu值对比后是否拦截
      */
-    fun writeData(bleDevice: BleDevice,
-                  serviceUUID: String,
-                  writeUUID: String,
-                  data: ByteArray,
-                  bleWriteCallback: BleWriteCallback.() -> Unit) {
+    fun writeData(
+        bleDevice: BleDevice,
+        serviceUUID: String,
+        writeUUID: String,
+        data: ByteArray,
+        bleWriteCallback: BleWriteCallback.() -> Unit
+    ) {
         writeData(
             bleDevice,
             serviceUUID,
@@ -601,11 +628,13 @@ class BleManager private constructor() {
      * 注意：因为分包后每一个包，可能是包含完整的协议，所以分包由业务层处理，组件只会根据包的长度和mtu值对比后是否拦截
      */
     @Synchronized
-    fun writeData(bleDevice: BleDevice,
-                  serviceUUID: String,
-                  writeUUID: String,
-                  dataArray: SparseArray<ByteArray>,
-                  bleWriteCallback: BleWriteCallback.() -> Unit) {
+    fun writeData(
+        bleDevice: BleDevice,
+        serviceUUID: String,
+        writeUUID: String,
+        dataArray: SparseArray<ByteArray>,
+        bleWriteCallback: BleWriteCallback.() -> Unit
+    ) {
         checkInitialize()
         bleBaseRequest?.writeData(bleDevice, serviceUUID, writeUUID, dataArray, bleWriteCallback)
     }
@@ -619,13 +648,15 @@ class BleManager private constructor() {
      * @param skipErrorPacketData 是否跳过数据长度为0的数据包
      * @param retryWriteCount 写失败后重试的次数
      */
-    fun writeQueueData(bleDevice: BleDevice,
-                       serviceUUID: String,
-                       writeUUID: String,
-                       data: ByteArray,
-                       skipErrorPacketData: Boolean = false,
-                       retryWriteCount: Int = 0,
-                       bleWriteCallback: BleWriteCallback.() -> Unit) {
+    fun writeQueueData(
+        bleDevice: BleDevice,
+        serviceUUID: String,
+        writeUUID: String,
+        data: ByteArray,
+        skipErrorPacketData: Boolean = false,
+        retryWriteCount: Int = 0,
+        bleWriteCallback: BleWriteCallback.() -> Unit
+    ) {
         writeQueueData(
             bleDevice,
             serviceUUID,
@@ -649,13 +680,15 @@ class BleManager private constructor() {
      * @param retryWriteCount 写失败后重试的次数
      */
     @Synchronized
-    fun writeQueueData(bleDevice: BleDevice,
-                       serviceUUID: String,
-                       writeUUID: String,
-                       dataArray: SparseArray<ByteArray>,
-                       skipErrorPacketData: Boolean = false,
-                       retryWriteCount: Int = 0,
-                       bleWriteCallback: BleWriteCallback.() -> Unit) {
+    fun writeQueueData(
+        bleDevice: BleDevice,
+        serviceUUID: String,
+        writeUUID: String,
+        dataArray: SparseArray<ByteArray>,
+        skipErrorPacketData: Boolean = false,
+        retryWriteCount: Int = 0,
+        bleWriteCallback: BleWriteCallback.() -> Unit
+    ) {
         checkInitialize()
         bleBaseRequest?.writeQueueData(
             bleDevice,
@@ -714,7 +747,10 @@ class BleManager private constructor() {
      * 替换该设备的连接回调
      */
     @Synchronized
-    fun replaceBleConnectCallback(bleDevice: BleDevice, bleConnectCallback: BleConnectCallback.() -> Unit) {
+    fun replaceBleConnectCallback(
+        bleDevice: BleDevice,
+        bleConnectCallback: BleConnectCallback.() -> Unit
+    ) {
         checkInitialize()
         bleBaseRequest?.replaceBleConnectCallback(bleDevice, bleConnectCallback)
     }
@@ -722,7 +758,10 @@ class BleManager private constructor() {
     /**
      * 替换该设备的连接回调
      */
-    fun replaceBleConnectCallback(address: String, bleConnectCallback: BleConnectCallback.() -> Unit) {
+    fun replaceBleConnectCallback(
+        address: String,
+        bleConnectCallback: BleConnectCallback.() -> Unit
+    ) {
         replaceBleConnectCallback(buildBleDeviceByDeviceAddress(address), bleConnectCallback)
     }
 
@@ -776,9 +815,10 @@ class BleManager private constructor() {
      * bleWriteCallback为空，则会移除writeUUID下的所有callback
      */
     @Synchronized
-    fun removeBleWriteCallback(bleDevice: BleDevice,
-                               writeUUID: String,
-                               bleWriteCallback: BleWriteCallback? = null
+    fun removeBleWriteCallback(
+        bleDevice: BleDevice,
+        writeUUID: String,
+        bleWriteCallback: BleWriteCallback? = null
     ) {
         checkInitialize()
         bleBaseRequest?.removeBleWriteCallback(bleDevice, writeUUID, bleWriteCallback)
@@ -872,6 +912,11 @@ class BleManager private constructor() {
     }
 
     /**
+     * 是否已初始化
+     */
+    fun isInitialized() = bleBaseRequest != null
+
+    /**
      * 通过设备地址构建BleDevice对象，确保已获取到权限
      */
     @SuppressLint("MissingPermission")
@@ -879,7 +924,7 @@ class BleManager private constructor() {
         val deviceInfo = bluetoothManager?.adapter?.getRemoteDevice(deviceAddress)
         return BleDevice(
             deviceInfo,
-            deviceInfo?.name?: "",
+            deviceInfo?.name ?: "",
             deviceAddress,
             0,
             0,

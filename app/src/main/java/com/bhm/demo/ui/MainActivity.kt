@@ -150,12 +150,6 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
             }
             viewModel.stopScan()
         }
-
-        autoClick()
-    }
-
-    private fun autoClick() {
-        viewBinding.btnConnect.performClick()
     }
 
     private fun initList() {

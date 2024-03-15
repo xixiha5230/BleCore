@@ -40,7 +40,8 @@ import org.greenrobot.eventbus.ThreadMode
  * @author Buhuiming
  * @date 2023年05月24日 16时06分
  */
-abstract class BaseActivity<VM : BaseViewModel, B : ViewBinding> : HttpActivity(), Handler.Callback {
+abstract class BaseActivity<VM : BaseViewModel, B : ViewBinding> : HttpActivity(),
+    Handler.Callback {
 
     lateinit var viewModel: VM
 
@@ -77,15 +78,11 @@ abstract class BaseActivity<VM : BaseViewModel, B : ViewBinding> : HttpActivity(
     }
 
     fun showLoading(msg: String? = "") {
-        httpOptions = HttpOptions.create(this)
-            .setLoadingDialog(HttpLoadingDialog())
-            .setLoadingTitle(msg)
-            .setDialogAttribute(
-                true,
-                cancelable = false,
-                dialogDismissInterruptRequest = true
-            )
-            .build()
+        httpOptions =
+            HttpOptions.create(this).setLoadingDialog(HttpLoadingDialog()).setLoadingTitle(msg)
+                .setDialogAttribute(
+                    true, cancelable = false, dialogDismissInterruptRequest = true
+                ).build()
         httpOptions?.let {
             it.dialog?.showLoading(it)
         }
@@ -159,22 +156,27 @@ abstract class BaseActivity<VM : BaseViewModel, B : ViewBinding> : HttpActivity(
         return ViewModelProvider(owner)[viewModel.javaClass]
     }
 
-    fun startActivity(intent: Intent, arCallback: (resultCode: Int, resultIntent: Intent?) -> Unit) {
+    fun startActivity(
+        intent: Intent, arCallback: (resultCode: Int, resultIntent: Intent?) -> Unit
+    ) {
         this.arCallback = arCallback
         activityLauncher?.launch(intent)
     }
 
-    fun requestPermission(permissions: Array<String>,
-                          agree: () -> Unit,
-                          refuse: (refusePermissions: ArrayList<String>) -> Unit
+    fun requestPermission(
+        permissions: Array<String>,
+        agree: () -> Unit,
+        refuse: (refusePermissions: ArrayList<String>) -> Unit
     ) {
         this.permissionAgree = agree
         this.permissionRefuse = refuse
         var allAgree = true
         for (permission in permissions) {
-            if( ContextCompat.checkSelfPermission(this, permission) !=
-                PackageManager.PERMISSION_GRANTED) {
-                allAgree=false
+            if (ContextCompat.checkSelfPermission(
+                    this, permission
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                allAgree = false
                 break
             }
         }
